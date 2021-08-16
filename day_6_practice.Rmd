@@ -1,0 +1,89 @@
+---
+title: "EDS221-Day6-Interactive"
+author: "Jake Eisaguirre"
+date: "8/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+```
+
+```{r}
+
+wb_indicators <- read_csv(here("data", "wb_indicators.csv"), na = c("..",""))
+
+```
+
+## pivot longer for year
+
+```{r}
+
+wb_indicators_long <- wb_indicators %>% 
+  pivot_longer(cols = '2001 [YR2001]': '2020 [YR2020]',
+               names_to = "year",
+               values_to = "indicator_value")
+
+```
+
+## Clean up year columm and remove  unwanted column
+
+```{r}
+
+wb_data_sep <- wb_indicators_long %>% 
+ 
+   separate(col = year, into = c("year", "year_chr"), sep = " ") %>% 
+  
+  select(-year_chr, -'Country Code', -'Series Code')
+
+
+```
+
+## pivot wider
+
+```{r}
+
+wb_data_wide <- wb_data_sep %>% 
+ 
+   drop_na('Series Name') %>% 
+ 
+   pivot_wider(names_from = 'Series Name', 
+               values_from = indicator_value)
+
+names(wb_data_wide) <- c("country", "year", "access_clean_fuels", "access_electricity", "co2_emissions", 
+                         "fossil_fuel_cons", "water_stress")
+
+wb_data_tidy <- wb_data_wide %>% 
+  rename(country_name = country)
+
+# rename(new name = old name)
+
+```
+
+
+```{r}
+df <- tribble(
+  
+  ~name, ~A, ~B, ~C,
+  "teddy", 4, 5, 6,
+  "khora", 9, 10, 11
+)
+
+df
+
+df_longer <- df %>% 
+  pivot_longer(cols = "A":"C",
+               names_to = "Dog Food",
+               values_to = " ")
+```
+
+##back to wide
+```{r}
+df_wide <- df_longer %>% 
+  pivot_wider(names_from = "Dog Food",
+              values_from = " ")
+
+```
+
